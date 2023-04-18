@@ -21,7 +21,7 @@ enemypositions = {
 }
 
 -- A custom list with attacks to choose from. Actual selection happens in EnemyDialogueEnding(). Put here in case you want to use it.
-possible_attacks = {"empty"}
+possible_attacks = {"test"}
 deathtext = {"And their tale was never finished..."}
 
 
