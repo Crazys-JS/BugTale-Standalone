@@ -18,7 +18,7 @@ function Update()
         for i=1, math.random(1,3) do
             local spawnX = math.random(-100, 100)
             local spawnY = math.random(Arena.height + 50, Arena.height + 150)
-            local bullet = CreateProjectile("Bullets/flowey_pellet", spawnX, spawnY);
+            local bullet = CreateProjectile("bullet", spawnX, spawnY);
             bullet.sprite.alpha = 0;
 
             local difX = Player.x - spawnX;
