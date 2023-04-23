@@ -16,7 +16,7 @@ BugTaleCharacters.CurrentActor = 1;
 BugTaleCharacters.ActorAnimationTimer = 0;
 BugTaleCharacters.UIAnimationTimer = 0;
 
-BugTaleCharacters.OtherMenuActions = {"Spy", "Do Nothing", "Turn Relay", "Spare"} -- These are default actions provided by BugTale library.
+BugTaleCharacters.OtherMenuActions = {}
 BugTaleCharacters.ActionProperties = {};
 BugTaleCharacters.TextVisuals = {};
 BugTaleCharacters.RevertState = "ACTIONSELECT"
@@ -1643,120 +1643,6 @@ function ChangeSpareProgress(targetID, amount) --this ID is the position of the 
     
     BugTaleCharacters.CreateTextVisual(enemyX, enemyY, text, color)
 end
-
-BugTaleCharacters.RegisterActionProperty({
-    Name = "Spy",
-    DisplayName = "* Spy",
-    Description = "Check enemy & see MERCY progress.",
-    TPCost = 0,
-    Target = "ENEMIES",
-    OnExecuted = function()
-        local enemy = BugTaleCharacters.GetEnemyScript(BugTaleCharacters.TargetSelected)
-        local checkMSG = enemy.GetVar("check")
-        local spyMSG = enemy.GetVar("spymessages")
-        local name = enemy.GetVar("name")
-        local atk = enemy.GetVar("atk")
-        local def = enemy.GetVar("def")
-
-        enemy.SetVar("was_spied", true)
-
-        BattleDialog(name:upper() .." ATK " ..atk .." DEF " ..def .."\n" ..checkMSG);
-        if spyMSG and spyMSG[BugTaleCharacters.CurrentActor] then
-            QueuedSpyDialog = spyMSG[BugTaleCharacters.CurrentActor]
-        end
-    end
-});
-
-BugTaleCharacters.RegisterActionProperty({
-    Name = "Do Nothing",
-    DisplayName = "* Do Nothing",
-    Description = "+16% TP.",
-    TPCost = 0,
-    Target = "AUTO",
-    OnExecuted = function()
-        ChangeTP(16)
-        State("ENEMYDIALOGUE")
-    end
-});
-
-BugTaleCharacters.RegisterActionProperty({
-    Name = "Turn Relay",
-    DisplayName = "* Turn Relay",
-    Description = "Pass to ally.",
-    TPCost = 0,
-    Target = "OTHERALLIES",
-    BeforeMenu = function()
-        if BugTaleCharacters.GetCurrentActor().Relayed then
-            BugTaleCharacters.ActionProperties["Turn Relay"].DisplayName = "[color:FF0000]* Turn Relay[color:FFFFFF]";
-        else
-            BugTaleCharacters.ActionProperties["Turn Relay"].DisplayName = "* Turn Relay";
-        end
-    end,
-    OnExecuted = function()
-        local currentActor = BugTaleCharacters.GetCurrentActor();
-        local relayedTo = BugTaleCharacters.Actors[BugTaleCharacters.TargetSelected];
-
-        if relayedTo.Turns <= -1 then
-            BattleDialog({relayedTo.Name .." acted too many times. You cannot relay to them this turn.", "[noskip][func:State,ACTIONSELECT][next]"})
-            return
-        end
-
-        BugTaleCharacters.GetCurrentActor().Relayed = true;
-        currentActor.Turns = currentActor.Turns - 1;
-        relayedTo.Turns = relayedTo.Turns + 1;
-
-        currentActor.LastButton = "MERCY";
-
-        BugTaleCharacters.ChangeActor(BugTaleCharacters.TargetSelected)
-        State("ACTIONSELECT")
-        SetAction(relayedTo.LastButton)
-    end
-});
-
-BugTaleCharacters.RegisterActionProperty({
-    Name = "Spare",
-    DisplayName = "* Spare",
-    Description = "Spare enemies.",
-    TPCost = 0,
-    Target = "AUTO",
-    BeforeMenu = function()
-        local canSpare = false;
-        for i,x in pairs(enemies) do
-            if x.GetVar("isactive") and x.GetVar("canspare") then
-                canSpare = true
-                break
-            end
-        end
-
-        if canSpare then
-            BugTaleCharacters.ActionProperties["Spare"].DisplayName = "[color:FFFF00]* Spare[color:FFFFFF]";
-        else
-            BugTaleCharacters.ActionProperties["Spare"].DisplayName = "* Spare";
-        end
-    end,
-    OnExecuted = function()
-        State("NONE")
-
-        local spared = false;
-        
-        for i,x in pairs(enemies) do
-            if x.GetVar("canspare") then
-                spared = true;
-                if x.GetVar("OnSpare") then
-                    x.Call("OnSpare");
-                else
-                    x.Call("Spare");
-                end
-            end
-        end
-
-        if spared then
-            BattleDialog({BugTaleCharacters.GetCurrentActor().Name .." spared the enemies!", "[noskip][func:State,DIALOGRESULT][next]"});
-        else
-            BattleDialog({BugTaleCharacters.GetCurrentActor().Name .." spared the enemies![w:15]\nBut their names weren't [color:FFFF00]YELLOW[color:FFFFFF].", "[noskip][func:State,DIALOGRESULT][next]"});
-        end
-    end
-});
 
 --- ENCOUNTER FUNCTIONS ------------------------
 function DamageRandom(amount, invulTime)

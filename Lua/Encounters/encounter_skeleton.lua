@@ -30,6 +30,8 @@ TPLibrary = require 'tp_library'
 BugTaleLibrary = require 'bugtale'
 --------------------------------------------------------------------
 
+require 'behavior/othermenu' -- This library creates the "other" menu.
+
 --!!!! REGISTER CHARACTERS HERE!!!--
 _KABBU_REGISTER = require('characters/kabbu')
 _LEIF_REGISTER = require('characters/leif')
