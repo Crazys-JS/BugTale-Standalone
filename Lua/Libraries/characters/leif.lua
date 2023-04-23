@@ -14,8 +14,7 @@ _LEIF_REGISTER.ID = 1;
 _LEIF_REGISTER.AbilityRegistry = {
     ["L-Action"] = {
         Name = "L-Action",
-        DisplayName = "[color:0094FF]* L-Action[color:FFFFFF]",
-        TPCost = 0,
+        DisplayName = "[color:0094FF]* L-Action",
         Target = "ENEMIES",
         OnExecuted = function()
             local scr = BugTaleCharacters.GetEnemyScript(BugTaleCharacters.TargetSelected);
@@ -57,13 +56,24 @@ _LEIF_REGISTER.AbilityRegistry = {
         OnExecuted = function()
             BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 2}})
         end
+    },
+    ["Frozen Drill"] = {
+        Name = "leif/frozendrill",
+        DisplayName = "Frozen Drill",
+        AdditionalActors = {"Kabbu"},
+        Description = "Severe dmg to enemy twice.",
+        Target = "ENEMIES",
+        TPCost = 0,
+        OnExecuted = function()
+            BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 3}, {BugTaleLibrary.TargetSelected, Player.atk * 3}})
+        end
     }
 }
 
 _LEIF_REGISTER.UnlockedSkills = {};
 
 for i,x in pairs(_LEIF_REGISTER.AbilityRegistry) do
-    table.insert(_LEIF_REGISTER.UnlockedSkills, i);
+    table.insert(_LEIF_REGISTER.UnlockedSkills, x.Name);
     BugTaleCharacters.RegisterActionProperty(x)
 end
 

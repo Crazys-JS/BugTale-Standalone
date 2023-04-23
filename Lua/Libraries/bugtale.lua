@@ -16,7 +16,7 @@ BugTaleCharacters.CurrentActor = 1;
 BugTaleCharacters.ActorAnimationTimer = 0;
 BugTaleCharacters.UIAnimationTimer = 0;
 
-BugTaleCharacters.OtherMenuActions = {"Spy", "Do Nothing", "Turn Relay", "Spare"} -- These are default actions provided by BugTale library.
+BugTaleCharacters.OtherMenuActions = {}
 BugTaleCharacters.ActionProperties = {};
 BugTaleCharacters.TextVisuals = {};
 BugTaleCharacters.RevertState = "ACTIONSELECT"
@@ -44,6 +44,7 @@ BugTaleCharacters.AttackTimerStart = 0;
 BugTaleCharacters.AttackFrequency = 60; -- Change this to make multiattacks quicker.
 
 BugTaleCharacters.ActiveActions = {}; -- The actions currently selectable.
+BugTaleCharacters.ActiveActionImages = {};
 BugTaleCharacters.ActionSelectionTexts = {};
 BugTaleCharacters.SelectionUIIndex = 1;
 BugTaleCharacters.ActionSelectionActive = false;
@@ -406,6 +407,12 @@ function BugTaleCharacters.CreateTargetSelection(mode)
         x.SetText("[noskip][instant]")
     end
 
+    for i,x in pairs(BugTaleCharacters.ActiveActionImages) do
+        x.Remove()
+    end
+
+    BugTaleCharacters.ActiveActionImages = {};
+
     BugTaleCharacters.SkillDescriptionTXT.SetText("[noskip][instant]")
 
     BugTaleCharacters.CurrentTargetIndex = 1;
@@ -413,7 +420,7 @@ function BugTaleCharacters.CreateTargetSelection(mode)
 end
 
 -- DO NOT PUT "Portraits/" IN PORTRAIT VARIABLE, THAT IS DONE AUTOMATICALLY FOR YOU!
-function BugTaleCharacters.CreateActor(name, color32, hp, portrait, voice, posX, actionList)
+function BugTaleCharacters.CreateActor(name, color32, hp, assetName, voice, posX, actionList)
     local actor = {};
 
     actor.Name = name;
@@ -436,14 +443,16 @@ function BugTaleCharacters.CreateActor(name, color32, hp, portrait, voice, posX,
     actor.UI.color32 = actor.Color32
     actor.UI.MoveTo(posX, 225)
 
-    actor.PortraitMask = CreateSprite("Portraits/" ..portrait);
+    actor.AssetsFolder = "CharacterAssets/" ..assetName;
+
+    actor.PortraitMask = CreateSprite(actor.AssetsFolder .."/portrait");
     actor.PortraitMask.SetParent(actor.UI)
     actor.PortraitMask.SetAnchor(.5,1)
     actor.PortraitMask.MoveTo(0,actor.PortraitMask.height / 2)
     actor.PortraitMask.alpha = 0
     actor.PortraitMask.Mask("box")
 
-    actor.Portrait = CreateSprite("Portraits/" ..portrait);
+    actor.Portrait = CreateSprite(actor.AssetsFolder .."/portrait");
     actor.Portrait.SetParent(actor.PortraitMask)
     actor.Portrait.MoveTo(0,0)
 
@@ -663,7 +672,15 @@ function BugTaleCharacters.HandleAction(actionID)
             local unavailableActors = {};
             
             for i,x in pairs(action.AdditionalActors) do
-                local actor = BugTaleCharacters.Actors[x];
+                local actor = nil;
+
+                for _,k in pairs(BugTaleCharacters.Actors) do
+                    if k.Name == x then
+                        actor = k
+                        break;
+                    end
+                end
+
                 if actor.Health <= 0 or actor.Turns <= -1 then
                     table.insert(unavailableActors, actor.Name)
                 end
@@ -698,12 +715,20 @@ function BugTaleCharacters.HandleAction(actionID)
             BugTaleCharacters.CreateTargetSelection(target)
         else
             State("PAUSE")
-            if BugTaleCharacters.QueuedAction.TPCost > 0 then
+            if BugTaleCharacters.QueuedAction.TPCost and BugTaleCharacters.QueuedAction.TPCost > 0 then
                 ChangeTP(-BugTaleCharacters.QueuedAction.TPCost)
             end
             if BugTaleCharacters.QueuedAction.AdditionalActors then
                 for i,x in pairs(BugTaleCharacters.QueuedAction.AdditionalActors) do
-                    local actor = BugTaleCharacters.Actors[x];
+                    local actor = nil;
+
+                    for _,k in pairs(BugTaleCharacters.Actors) do
+                        if k.Name == x then
+                            actor = k
+                            break;
+                        end
+                    end
+
                     actor.Turns = actor.Turns - 1;
 
                     actor.HighlightActor = true
@@ -729,17 +754,78 @@ function BugTaleCharacters.DisplayActionSelectPage()
     local firstIndex = page * 4 + 1;
     local lastIndex = firstIndex + 3;
 
+    for i,x in pairs(BugTaleCharacters.ActiveActionImages) do
+        x.Remove()
+    end
+
+    BugTaleCharacters.ActiveActionImages = {};
+
+    local j = 0;
     for i=firstIndex, lastIndex do
         local actionName = BugTaleCharacters.ActiveActions[i];
-        if not actionName then
-            BugTaleCharacters.ActionSelectionTexts[4 - (lastIndex - i)].SetText("[noskip][instant]");
+        local actionData = BugTaleCharacters.ActionProperties[actionName];
+        local textObj = BugTaleCharacters.ActionSelectionTexts[4 - (lastIndex - i)]
+
+        local row = math.floor(j / 2);
+        local column = j % 2;
+        
+        local absx = 92 + column * 265;
+        local absy = 183 - row * 30;
+
+        if not actionName or not actionData then
+            textObj.SetText("[noskip][instant]");
         else
-            BugTaleCharacters.ActionSelectionTexts[4 - (lastIndex - i)].SetText("[noskip][instant]" ..BugTaleCharacters.ActionProperties[actionName].DisplayName)
+            local failed = false;
+            local totalWidth = 0;
+            local extra = "";
+
+            if actionData.AdditionalActors and #actionData.AdditionalActors > 0 then
+                for i=1, #actionData.AdditionalActors do
+                    local actor = nil;
+
+                    for k,x in pairs(BugTaleCharacters.Actors) do
+                        if x.Name == actionData.AdditionalActors[i] then
+                            if k == BugTaleCharacters.CurrentActor then
+                                error("Character tries to teamwork attack with themselves.")
+                                break;
+                            end
+
+                            actor = x;
+                            break;
+                        end
+                    end
+
+                    if not actor then
+                        failed = true
+                        error("Tried to find additional actor but couldn't find one.");
+                        break
+                    end
+
+                    if(#actionData.AdditionalActors == 1) then
+                        extra = "[color:" ..actor.HexColor .."]";
+                    end
+
+                    
+                    local image = CreateSprite(actor.AssetsFolder .. "/dialog", "BelowPlayer");
+                    image.SetPivot(.5,0);
+                    image.MoveToAbs(absx + totalWidth + 10, absy)
+
+                    totalWidth = totalWidth + image.width;
+                    
+                    table.insert(BugTaleCharacters.ActiveActionImages, image);
+                end
+                absx = absx + totalWidth + 16;
+            end
+
+            textObj.SetText("[noskip][instant]" ..extra ..actionData.DisplayName .."[color:FFFFFF]");
         end
+
+        textObj.MoveTo(absx, absy)
+        j = j + 1;
     end
 
     local currentAction = BugTaleCharacters.ActionProperties[BugTaleCharacters.ActiveActions[BugTaleCharacters.SelectionUIIndex]];
-    if currentAction.TPCost > 0 then
+    if currentAction.TPCost and currentAction.TPCost > 0 then
         if GetTP() < currentAction.TPCost then
             BugTaleCharacters.TPCostText.color = {1,0,0}
         else
@@ -812,6 +898,12 @@ function BugTaleCharacters.StopActionSelect()
     for i,x in pairs(BugTaleCharacters.ActionSelectionTexts) do
         x.SetText("[noskip][instant][next]")
     end
+
+    for i,x in pairs(BugTaleCharacters.ActiveActionImages) do
+        x.Remove()
+    end
+
+    BugTaleCharacters.ActiveActionImages = {};
 end
 
 function AfterAttack()
@@ -1308,12 +1400,19 @@ function BugTaleCharacters.Update()
             BugTaleCharacters.HideTargetSelection();
 
             if(BugTaleCharacters.QueuedAction) then
-                if BugTaleCharacters.QueuedAction.TPCost > 0 then
+                if BugTaleCharacters.QueuedAction.TPCost and BugTaleCharacters.QueuedAction.TPCost > 0 then
                     ChangeTP(-BugTaleCharacters.QueuedAction.TPCost)
                 end
                 if BugTaleCharacters.QueuedAction.AdditionalActors then
                     for i,x in pairs(BugTaleCharacters.QueuedAction.AdditionalActors) do
-                        local actor = BugTaleCharacters.Actors[x];
+                        local actor = nil;
+
+                        for _,k in pairs(BugTaleCharacters.Actors) do
+                            if k.Name == x then
+                                actor = k
+                                break;
+                            end
+                        end
                         actor.Turns = actor.Turns - 1;
     
                         actor.HighlightActor = true
@@ -1643,120 +1742,6 @@ function ChangeSpareProgress(targetID, amount) --this ID is the position of the 
     
     BugTaleCharacters.CreateTextVisual(enemyX, enemyY, text, color)
 end
-
-BugTaleCharacters.RegisterActionProperty({
-    Name = "Spy",
-    DisplayName = "* Spy",
-    Description = "Check enemy & see MERCY progress.",
-    TPCost = 0,
-    Target = "ENEMIES",
-    OnExecuted = function()
-        local enemy = BugTaleCharacters.GetEnemyScript(BugTaleCharacters.TargetSelected)
-        local checkMSG = enemy.GetVar("check")
-        local spyMSG = enemy.GetVar("spymessages")
-        local name = enemy.GetVar("name")
-        local atk = enemy.GetVar("atk")
-        local def = enemy.GetVar("def")
-
-        enemy.SetVar("was_spied", true)
-
-        BattleDialog(name:upper() .." ATK " ..atk .." DEF " ..def .."\n" ..checkMSG);
-        if spyMSG and spyMSG[BugTaleCharacters.CurrentActor] then
-            QueuedSpyDialog = spyMSG[BugTaleCharacters.CurrentActor]
-        end
-    end
-});
-
-BugTaleCharacters.RegisterActionProperty({
-    Name = "Do Nothing",
-    DisplayName = "* Do Nothing",
-    Description = "+16% TP.",
-    TPCost = 0,
-    Target = "AUTO",
-    OnExecuted = function()
-        ChangeTP(16)
-        State("ENEMYDIALOGUE")
-    end
-});
-
-BugTaleCharacters.RegisterActionProperty({
-    Name = "Turn Relay",
-    DisplayName = "* Turn Relay",
-    Description = "Pass to ally.",
-    TPCost = 0,
-    Target = "OTHERALLIES",
-    BeforeMenu = function()
-        if BugTaleCharacters.GetCurrentActor().Relayed then
-            BugTaleCharacters.ActionProperties["Turn Relay"].DisplayName = "[color:FF0000]* Turn Relay[color:FFFFFF]";
-        else
-            BugTaleCharacters.ActionProperties["Turn Relay"].DisplayName = "* Turn Relay";
-        end
-    end,
-    OnExecuted = function()
-        local currentActor = BugTaleCharacters.GetCurrentActor();
-        local relayedTo = BugTaleCharacters.Actors[BugTaleCharacters.TargetSelected];
-
-        if relayedTo.Turns <= -1 then
-            BattleDialog({relayedTo.Name .." acted too many times. You cannot relay to them this turn.", "[noskip][func:State,ACTIONSELECT][next]"})
-            return
-        end
-
-        BugTaleCharacters.GetCurrentActor().Relayed = true;
-        currentActor.Turns = currentActor.Turns - 1;
-        relayedTo.Turns = relayedTo.Turns + 1;
-
-        currentActor.LastButton = "MERCY";
-
-        BugTaleCharacters.ChangeActor(BugTaleCharacters.TargetSelected)
-        State("ACTIONSELECT")
-        SetAction(relayedTo.LastButton)
-    end
-});
-
-BugTaleCharacters.RegisterActionProperty({
-    Name = "Spare",
-    DisplayName = "* Spare",
-    Description = "Spare enemies.",
-    TPCost = 0,
-    Target = "AUTO",
-    BeforeMenu = function()
-        local canSpare = false;
-        for i,x in pairs(enemies) do
-            if x.GetVar("isactive") and x.GetVar("canspare") then
-                canSpare = true
-                break
-            end
-        end
-
-        if canSpare then
-            BugTaleCharacters.ActionProperties["Spare"].DisplayName = "[color:FFFF00]* Spare[color:FFFFFF]";
-        else
-            BugTaleCharacters.ActionProperties["Spare"].DisplayName = "* Spare";
-        end
-    end,
-    OnExecuted = function()
-        State("NONE")
-
-        local spared = false;
-        
-        for i,x in pairs(enemies) do
-            if x.GetVar("canspare") then
-                spared = true;
-                if x.GetVar("OnSpare") then
-                    x.Call("OnSpare");
-                else
-                    x.Call("Spare");
-                end
-            end
-        end
-
-        if spared then
-            BattleDialog({BugTaleCharacters.GetCurrentActor().Name .." spared the enemies!", "[noskip][func:State,DIALOGRESULT][next]"});
-        else
-            BattleDialog({BugTaleCharacters.GetCurrentActor().Name .." spared the enemies![w:15]\nBut their names weren't [color:FFFF00]YELLOW[color:FFFFFF].", "[noskip][func:State,DIALOGRESULT][next]"});
-        end
-    end
-});
 
 --- ENCOUNTER FUNCTIONS ------------------------
 function DamageRandom(amount, invulTime)

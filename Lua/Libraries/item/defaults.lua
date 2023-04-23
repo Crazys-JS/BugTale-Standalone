@@ -7,7 +7,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Crunchy Leaf",
     DisplayName = "* C. Leaf",
     Description = "4 HP Recovery",
-    TPCost = 0,
     Target = "ALLIES",
     IsConsumable = true,
     OnExecuted = function()
@@ -21,7 +20,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Leaf Omelet",
     DisplayName = "* L. Omelet",
     Description = "9 HP Recovery",
-    TPCost = 0,
     Target = "ALLIES",
     IsConsumable = true,
     OnExecuted = function()
@@ -35,7 +33,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Spider Donut",
     DisplayName = "* SpidrDont",
     Description = "6 HP Recovery",
-    TPCost = 0,
     Target = "ALLIES",
     IsConsumable = true,
     OnExecuted = function()
@@ -54,7 +51,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Mushroom",
     DisplayName = "* Mushroom",
     Description = "3 HP Recovery & +8% TP",
-    TPCost = 0,
     Target = "ALLIES",
     IsConsumable = true,
     OnExecuted = function()
@@ -70,7 +66,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Abomihoney",
     DisplayName = "* Abomihoney",
     Description = "+75% TP at a big price.",
-    TPCost = 0,
     Target = "AUTO",
     IsConsumable = true,
     OnExecuted = function()
@@ -84,7 +79,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Spider Cider",
     DisplayName = "* SpidrCidr",
     Description = "12 HP Recovery",
-    TPCost = 0,
     Target = "ALLIES",
     IsConsumable = true,
     OnExecuted = function()
@@ -98,7 +92,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Magic Seed",
     DisplayName = "* Magic Seed",
     Description = "7 HP Recovery",
-    TPCost = 0,
     Target = "ALLIES",
     IsConsumable = true,
     OnExecuted = function()
@@ -118,7 +111,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Honey Drop",
     DisplayName = "* Honey Drop",
     Description = "+25% TP",
-    TPCost = 0,
     Target = "AUTO",
     IsConsumable = true,
     OnExecuted = function()
@@ -131,7 +123,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Glazed Honey",
     DisplayName = "* Glazed Honey",
     Description = "+35% TP",
-    TPCost = 0,
     Target = "AUTO",
     IsConsumable = true,
     OnExecuted = function()
