@@ -62,10 +62,10 @@ _KABBU_REGISTER.AbilityRegistry = {
         end
     },
     ["Frozen Drill"] = {
-        Name = "Frozen Drill",
-        DisplayName = "<[color:0094FF] Frozen Drill[color:FFFFFF]",
+        Name = "kabbu/frozendrill",
+        DisplayName = "Frozen Drill",
+        AdditionalActors = {"Leif"},
         Description = "Severe dmg to enemy twice.",
-        TPCost = 75,
         Target = "ENEMIES",
         OnExecuted = function()
             BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 3}, {BugTaleLibrary.TargetSelected, Player.atk * 3}})
@@ -76,7 +76,7 @@ _KABBU_REGISTER.AbilityRegistry = {
 _KABBU_REGISTER.UnlockedSkills = {}
 
 for i,x in pairs(_KABBU_REGISTER.AbilityRegistry) do
-    table.insert(_KABBU_REGISTER.UnlockedSkills, i)
+    table.insert(_KABBU_REGISTER.UnlockedSkills, x.Name)
     BugTaleCharacters.RegisterActionProperty(x)
 end
 

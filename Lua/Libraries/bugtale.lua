@@ -44,6 +44,7 @@ BugTaleCharacters.AttackTimerStart = 0;
 BugTaleCharacters.AttackFrequency = 60; -- Change this to make multiattacks quicker.
 
 BugTaleCharacters.ActiveActions = {}; -- The actions currently selectable.
+BugTaleCharacters.ActiveActionImages = {};
 BugTaleCharacters.ActionSelectionTexts = {};
 BugTaleCharacters.SelectionUIIndex = 1;
 BugTaleCharacters.ActionSelectionActive = false;
@@ -406,6 +407,12 @@ function BugTaleCharacters.CreateTargetSelection(mode)
         x.SetText("[noskip][instant]")
     end
 
+    for i,x in pairs(BugTaleCharacters.ActiveActionImages) do
+        x.Remove()
+    end
+
+    BugTaleCharacters.ActiveActionImages = {};
+
     BugTaleCharacters.SkillDescriptionTXT.SetText("[noskip][instant]")
 
     BugTaleCharacters.CurrentTargetIndex = 1;
@@ -413,7 +420,7 @@ function BugTaleCharacters.CreateTargetSelection(mode)
 end
 
 -- DO NOT PUT "Portraits/" IN PORTRAIT VARIABLE, THAT IS DONE AUTOMATICALLY FOR YOU!
-function BugTaleCharacters.CreateActor(name, color32, hp, portrait, voice, posX, actionList)
+function BugTaleCharacters.CreateActor(name, color32, hp, assetName, voice, posX, actionList)
     local actor = {};
 
     actor.Name = name;
@@ -436,14 +443,16 @@ function BugTaleCharacters.CreateActor(name, color32, hp, portrait, voice, posX,
     actor.UI.color32 = actor.Color32
     actor.UI.MoveTo(posX, 225)
 
-    actor.PortraitMask = CreateSprite("Portraits/" ..portrait);
+    actor.AssetsFolder = "CharacterAssets/" ..assetName;
+
+    actor.PortraitMask = CreateSprite(actor.AssetsFolder .."/portrait");
     actor.PortraitMask.SetParent(actor.UI)
     actor.PortraitMask.SetAnchor(.5,1)
     actor.PortraitMask.MoveTo(0,actor.PortraitMask.height / 2)
     actor.PortraitMask.alpha = 0
     actor.PortraitMask.Mask("box")
 
-    actor.Portrait = CreateSprite("Portraits/" ..portrait);
+    actor.Portrait = CreateSprite(actor.AssetsFolder .."/portrait");
     actor.Portrait.SetParent(actor.PortraitMask)
     actor.Portrait.MoveTo(0,0)
 
@@ -663,7 +672,15 @@ function BugTaleCharacters.HandleAction(actionID)
             local unavailableActors = {};
             
             for i,x in pairs(action.AdditionalActors) do
-                local actor = BugTaleCharacters.Actors[x];
+                local actor = nil;
+
+                for _,k in pairs(BugTaleCharacters.Actors) do
+                    if k.Name == x then
+                        actor = k
+                        break;
+                    end
+                end
+
                 if actor.Health <= 0 or actor.Turns <= -1 then
                     table.insert(unavailableActors, actor.Name)
                 end
@@ -703,7 +720,15 @@ function BugTaleCharacters.HandleAction(actionID)
             end
             if BugTaleCharacters.QueuedAction.AdditionalActors then
                 for i,x in pairs(BugTaleCharacters.QueuedAction.AdditionalActors) do
-                    local actor = BugTaleCharacters.Actors[x];
+                    local actor = nil;
+
+                    for _,k in pairs(BugTaleCharacters.Actors) do
+                        if k.Name == x then
+                            actor = k
+                            break;
+                        end
+                    end
+
                     actor.Turns = actor.Turns - 1;
 
                     actor.HighlightActor = true
@@ -729,17 +754,78 @@ function BugTaleCharacters.DisplayActionSelectPage()
     local firstIndex = page * 4 + 1;
     local lastIndex = firstIndex + 3;
 
+    for i,x in pairs(BugTaleCharacters.ActiveActionImages) do
+        x.Remove()
+    end
+
+    BugTaleCharacters.ActiveActionImages = {};
+
+    local j = 0;
     for i=firstIndex, lastIndex do
         local actionName = BugTaleCharacters.ActiveActions[i];
-        if not actionName then
-            BugTaleCharacters.ActionSelectionTexts[4 - (lastIndex - i)].SetText("[noskip][instant]");
+        local actionData = BugTaleCharacters.ActionProperties[actionName];
+        local textObj = BugTaleCharacters.ActionSelectionTexts[4 - (lastIndex - i)]
+
+        local row = math.floor(j / 2);
+        local column = j % 2;
+        
+        local absx = 92 + column * 265;
+        local absy = 183 - row * 30;
+
+        if not actionName or not actionData then
+            textObj.SetText("[noskip][instant]");
         else
-            BugTaleCharacters.ActionSelectionTexts[4 - (lastIndex - i)].SetText("[noskip][instant]" ..BugTaleCharacters.ActionProperties[actionName].DisplayName)
+            local failed = false;
+            local totalWidth = 0;
+            local extra = "";
+
+            if actionData.AdditionalActors and #actionData.AdditionalActors > 0 then
+                for i=1, #actionData.AdditionalActors do
+                    local actor = nil;
+
+                    for k,x in pairs(BugTaleCharacters.Actors) do
+                        if x.Name == actionData.AdditionalActors[i] then
+                            if k == BugTaleCharacters.CurrentActor then
+                                error("Character tries to teamwork attack with themselves.")
+                                break;
+                            end
+
+                            actor = x;
+                            break;
+                        end
+                    end
+
+                    if not actor then
+                        failed = true
+                        error("Tried to find additional actor but couldn't find one.");
+                        break
+                    end
+
+                    if(#actionData.AdditionalActors == 1) then
+                        extra = "[color:" ..actor.HexColor .."]";
+                    end
+
+                    
+                    local image = CreateSprite(actor.AssetsFolder .. "/dialog", "BelowPlayer");
+                    image.SetPivot(.5,0);
+                    image.MoveToAbs(absx + totalWidth + 10, absy)
+
+                    totalWidth = totalWidth + image.width;
+                    
+                    table.insert(BugTaleCharacters.ActiveActionImages, image);
+                end
+                absx = absx + totalWidth + 16;
+            end
+
+            textObj.SetText("[noskip][instant]" ..extra ..actionData.DisplayName .."[color:FFFFFF]");
         end
+
+        textObj.MoveTo(absx, absy)
+        j = j + 1;
     end
 
     local currentAction = BugTaleCharacters.ActionProperties[BugTaleCharacters.ActiveActions[BugTaleCharacters.SelectionUIIndex]];
-    if currentAction.TPCost > 0 then
+    if currentAction.TPCost and currentAction.TPCost > 0 then
         if GetTP() < currentAction.TPCost then
             BugTaleCharacters.TPCostText.color = {1,0,0}
         else
@@ -812,6 +898,12 @@ function BugTaleCharacters.StopActionSelect()
     for i,x in pairs(BugTaleCharacters.ActionSelectionTexts) do
         x.SetText("[noskip][instant][next]")
     end
+
+    for i,x in pairs(BugTaleCharacters.ActiveActionImages) do
+        x.Remove()
+    end
+
+    BugTaleCharacters.ActiveActionImages = {};
 end
 
 function AfterAttack()
@@ -1308,12 +1400,19 @@ function BugTaleCharacters.Update()
             BugTaleCharacters.HideTargetSelection();
 
             if(BugTaleCharacters.QueuedAction) then
-                if BugTaleCharacters.QueuedAction.TPCost > 0 then
+                if BugTaleCharacters.QueuedAction.TPCost and BugTaleCharacters.QueuedAction.TPCost > 0 then
                     ChangeTP(-BugTaleCharacters.QueuedAction.TPCost)
                 end
                 if BugTaleCharacters.QueuedAction.AdditionalActors then
                     for i,x in pairs(BugTaleCharacters.QueuedAction.AdditionalActors) do
-                        local actor = BugTaleCharacters.Actors[x];
+                        local actor = nil;
+
+                        for _,k in pairs(BugTaleCharacters.Actors) do
+                            if k.Name == x then
+                                actor = k
+                                break;
+                            end
+                        end
                         actor.Turns = actor.Turns - 1;
     
                         actor.HighlightActor = true

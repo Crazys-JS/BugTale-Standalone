@@ -9,7 +9,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Spy",
     DisplayName = "* Spy",
     Description = "Check enemy & see MERCY progress.",
-    TPCost = 0,
     Target = "ENEMIES",
     OnExecuted = function()
         local enemy = BugTaleLibrary.GetEnemyScript(BugTaleLibrary.TargetSelected)
@@ -32,7 +31,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Do Nothing",
     DisplayName = "* Do Nothing",
     Description = "+16% TP.",
-    TPCost = 0,
     Target = "AUTO",
     OnExecuted = function()
         ChangeTP(16)
@@ -44,11 +42,10 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Turn Relay",
     DisplayName = "* Turn Relay",
     Description = "Pass to ally.",
-    TPCost = 0,
     Target = "OTHERALLIES",
     BeforeMenu = function()
         if BugTaleLibrary.GetCurrentActor().Relayed then
-            BugTaleLibrary.ActionProperties["Turn Relay"].DisplayName = "[color:FF0000]* Turn Relay[color:FFFFFF]";
+            BugTaleLibrary.ActionProperties["Turn Relay"].DisplayName = "[color:FF0000]* Turn Relay";
         else
             BugTaleLibrary.ActionProperties["Turn Relay"].DisplayName = "* Turn Relay";
         end
@@ -78,7 +75,6 @@ BugTaleLibrary.RegisterActionProperty({
     Name = "Spare",
     DisplayName = "* Spare",
     Description = "Spare enemies.",
-    TPCost = 0,
     Target = "AUTO",
     BeforeMenu = function()
         local canSpare = false;
@@ -90,7 +86,7 @@ BugTaleLibrary.RegisterActionProperty({
         end
 
         if canSpare then
-            BugTaleLibrary.ActionProperties["Spare"].DisplayName = "[color:FFFF00]* Spare[color:FFFFFF]";
+            BugTaleLibrary.ActionProperties["Spare"].DisplayName = "[color:FFFF00]* Spare";
         else
             BugTaleLibrary.ActionProperties["Spare"].DisplayName = "* Spare";
         end
