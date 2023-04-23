@@ -57,6 +57,8 @@ _LEIF_REGISTER.AbilityRegistry = {
             BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 2}})
         end
     },
+
+    --[[ Team move example, this should be defined in the encounter itself so one character can exist alone.
     ["Frozen Drill"] = {
         Name = "leif/frozendrill",
         DisplayName = "Frozen Drill",
@@ -68,6 +70,7 @@ _LEIF_REGISTER.AbilityRegistry = {
             BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 3}, {BugTaleLibrary.TargetSelected, Player.atk * 3}})
         end
     }
+    --]]
 }
 
 _LEIF_REGISTER.UnlockedSkills = {};
