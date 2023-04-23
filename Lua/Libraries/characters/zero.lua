@@ -155,6 +155,33 @@ _ZERO_REGISTER.AbilityRegistry = {
     },
 
     {
+        Name = "zero/dash",
+        DisplayName = "* Dash",
+        Description = "Move faster next wave.",
+        TPCost = 8,
+        Target = "AUTO",
+        OnExecuted = function()
+            local zero = BugTaleLibrary.Actors[BugTaleLibrary.CurrentActor];
+            zero.IsDashing = true;
+            
+            Player.speed = Player.speed * 2;
+
+            BattleDialog("Zero dashes at incredible speed!");
+        end,
+        BeforeMenu = function()
+            local zero = BugTaleLibrary.Actors[BugTaleLibrary.CurrentActor];
+            if zero.IsDashing then
+                _ZERO_REGISTER.AbilityRegistry[4].DisplayName = "[color:FFFF00]-- ACTIVE --"
+            else
+                _ZERO_REGISTER.AbilityRegistry[4].DisplayName = "* Dash"
+            end
+        end,
+        ConditionCheck = function()
+            return not BugTaleLibrary.Actors[BugTaleLibrary.CurrentActor].IsDashing;
+        end
+    },
+
+    {
         Name = "cyberelf",
         DisplayName = "* Cyber-Elf",
         Description = "Heal/Revive to full but once.",
@@ -163,28 +190,39 @@ _ZERO_REGISTER.AbilityRegistry = {
             local zero = BugTaleLibrary.Actors[BugTaleLibrary.CurrentActor];
             zero.UsedCyberElf = true;
 
-            HealActor(BugTaleLibrary.TargetSelected, zero.MaxHealth)
+            local target = BugTaleLibrary.Actors[BugTaleLibrary.TargetSelected];
 
-            _ZERO_REGISTER.AbilityRegistry[4].DisplayName = "[color:FF0000]-- RIP --"
-            _ZERO_REGISTER.AbilityRegistry[4].Description = "They are resting in peace."
+            HealActor(BugTaleLibrary.TargetSelected, target.MaxHealth)
+
+            _ZERO_REGISTER.AbilityRegistry[5].DisplayName = "[color:FF0000]-- RIP --"
+            _ZERO_REGISTER.AbilityRegistry[5].Description = "They are resting in peace."
             BattleDialog("Zero used Cyber-Elf!\nHP fully restored but the Cyber-Elf perished!");
         end,
         ConditionCheck = function()
             return not BugTaleLibrary.Actors[BugTaleLibrary.CurrentActor].UsedCyberElf;
         end
     }
+
+
 }
 
 _ZERO_REGISTER.UnlockedSkills = {}
 
 for i,x in pairs(_ZERO_REGISTER.AbilityRegistry) do
     table.insert(_ZERO_REGISTER.UnlockedSkills, x.Name)
-    BugTaleCharacters.RegisterActionProperty(x)
+    BugTaleLibrary.RegisterActionProperty(x)
 end
 
 function _ZERO_REGISTER.Register(xPos)
     _ZERO_REGISTER.ID = BugTaleLibrary.CreateActor("Zero", {255,0,0}, 14, "Zero", "zero", xPos, _ZERO_REGISTER.UnlockedSkills);
-    BugTaleCharacters.SetActorAttack(_ZERO_REGISTER.ID, "Slash")
+    BugTaleLibrary.SetActorAttack(_ZERO_REGISTER.ID, "Slash")
+    BugTaleLibrary.Actors[_ZERO_REGISTER.ID].OnTeamTurn = function(currentID)
+        local zero = BugTaleLibrary.Actors[currentID];
+        if zero.IsDashing then
+            zero.IsDashing = false;
+            Player.speed = Player.speed / 2
+        end
+    end
 end
 
 return _ZERO_REGISTER
