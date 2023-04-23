@@ -1,5 +1,4 @@
 _LEIF_REGISTER = {};
-_LEIF_REGISTER.ID = 1;
 
 --[[ Targets specifiers:
 
