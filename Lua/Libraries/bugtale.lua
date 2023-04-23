@@ -715,7 +715,7 @@ function BugTaleCharacters.HandleAction(actionID)
             BugTaleCharacters.CreateTargetSelection(target)
         else
             State("PAUSE")
-            if BugTaleCharacters.QueuedAction.TPCost > 0 then
+            if BugTaleCharacters.QueuedAction.TPCost and BugTaleCharacters.QueuedAction.TPCost > 0 then
                 ChangeTP(-BugTaleCharacters.QueuedAction.TPCost)
             end
             if BugTaleCharacters.QueuedAction.AdditionalActors then
