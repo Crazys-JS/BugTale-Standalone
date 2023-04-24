@@ -52,20 +52,7 @@ _KABBU_REGISTER.AbilityRegistry = {
             local name = BugTaleLibrary.Actors[BugTaleLibrary.TargetSelected].Name;
             BattleDialog("[noskip]Kabbu inspires his fallen ally...\n[w:1][func:ReviveActor,{"..BugTaleLibrary.TargetSelected ..",4}][noskip:off]" ..name .." got up with 4 HP!")
         end
-    },
-    
-    --[[ Team move example, this should be defined in the encounter itself so one character can exist alone.
-    ["Frozen Drill"] = {
-        Name = "kabbu/frozendrill",
-        DisplayName = "Frozen Drill",
-        AdditionalActors = {"Leif"},
-        Description = "Severe dmg to enemy twice.",
-        Target = "ENEMIES",
-        OnExecuted = function()
-            BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 3}, {BugTaleLibrary.TargetSelected, Player.atk * 3}})
-        end
     }
-    -]]
 }
 
 _KABBU_REGISTER.UnlockedSkills = {}

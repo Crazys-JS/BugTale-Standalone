@@ -11,64 +11,6 @@ _ZERO_REGISTER = {};
 ]]--
 
 _ZERO_REGISTER.AbilityRegistry = {
-    --[[
-    Taunt = {
-        Name = "Taunt",
-        DisplayName = "* Taunt",
-        Description = "Make enemies target you.",
-        TPCost = 16,
-        Target = "AUTO",
-        OnExecuted = function()
-            BugTaleLibrary.SetTargets({BugTaleCharacters.CurrentActor})
-            BattleDialog("All enemies will target Kabbu on the next attack!")
-        end,
-        ConditionCheck = function()
-            return not BugTaleLibrary.TargetNext;
-        end,
-        BeforeMenu = function()
-            if(BugTaleLibrary.TargetNext) then
-                _ZERO_REGISTER.AbilityRegistry.Taunt.DisplayName = "[color:FFFF00]* --ACTIVE--[color:FFFFFF]"
-            else
-                _ZERO_REGISTER.AbilityRegistry.Taunt.DisplayName = "* Taunt"
-            end
-        end
-    },
-    ["Heavy Strike"] = {
-        Name = "Heavy Strike",
-        DisplayName = "* Heavy Strike",
-        Description = "High damage to one enemy.",
-        TPCost = 16,
-        Target = "ENEMIES",
-        OnExecuted = function()
-            BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 2}})
-        end
-    },
-    ["Pep Talk"] = {
-        Name = "Pep Talk",
-        DisplayName = "* Pep Talk",
-        Description = "Revive ally.",
-        TPCost = 50,
-        Target = "DOWNEDALLIES",
-        OnExecuted = function()
-            local name = BugTaleLibrary.Actors[BugTaleLibrary.TargetSelected].Name;
-            BattleDialog("[noskip]Kabbu inspires his fallen ally...\n[w:1][func:ReviveActor,{"..BugTaleLibrary.TargetSelected ..",4}][noskip:off]" ..name .." got up with 4 HP!")
-        end
-    },
-    ]]--
-    
-    --[[ Team move example, this should be defined in the encounter itself so one character can exist alone.
-    ["Frozen Drill"] = {
-        Name = "kabbu/frozendrill",
-        DisplayName = "Frozen Drill",
-        AdditionalActors = {"Leif"},
-        Description = "Severe dmg to enemy twice.",
-        Target = "ENEMIES",
-        OnExecuted = function()
-            BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 3}, {BugTaleLibrary.TargetSelected, Player.atk * 3}})
-        end
-    }
-    -]]
-
     {
         Name = "tripleslash",
         DisplayName = "* T Slash",
@@ -202,8 +144,6 @@ _ZERO_REGISTER.AbilityRegistry = {
             return not BugTaleLibrary.Actors[BugTaleLibrary.CurrentActor].UsedCyberElf;
         end
     }
-
-
 }
 
 _ZERO_REGISTER.UnlockedSkills = {}
@@ -214,7 +154,7 @@ for i,x in pairs(_ZERO_REGISTER.AbilityRegistry) do
 end
 
 function _ZERO_REGISTER.Register(xPos)
-    _ZERO_REGISTER.ID = BugTaleLibrary.CreateActor("Zero", {255,0,0}, 14, "Zero", "zero", xPos, _ZERO_REGISTER.UnlockedSkills);
+    _ZERO_REGISTER.ID = BugTaleLibrary.CreateActor("Zero", {255,0,0}, 14, "Zero", "kabbu", xPos, _ZERO_REGISTER.UnlockedSkills);
     BugTaleLibrary.SetActorAttack(_ZERO_REGISTER.ID, "Slash")
     BugTaleLibrary.Actors[_ZERO_REGISTER.ID].OnTeamTurn = function(currentID)
         local zero = BugTaleLibrary.Actors[currentID];

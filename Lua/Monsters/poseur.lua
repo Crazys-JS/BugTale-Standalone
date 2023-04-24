@@ -33,7 +33,7 @@ was_spied = false;
 
 function ConstructSpyMessages() -- This is ran after initialization and MYID is set.
     spymessages = {
-        {{1, {"..."}}, {2, {"(Kabbu is so quiet...)"}}},
+        {{1, {"I don't have the time.", "Let's end this quickly."}}},
         {{2, {"An inanimate object is attacking us?", "Must be the work of some strange magic."}}},
     }
 end
