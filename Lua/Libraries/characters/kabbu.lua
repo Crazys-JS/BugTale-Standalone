@@ -1,12 +1,4 @@
 _KABBU_REGISTER = {};
-_KABBU_REGISTER.ID = 1;
-
---[[
-    IT IS RECOMMENDED THAT YOU EDIT UIDIALOG FONT TO ADD MINITURE PORTRAITS OF YOUR CHARACTERS,
-    SO THAT YOU CAN USE THEM IN DIALOG AND ABILITY DISPLAY NAMES. SEE FROZEN DRILL FOR EXAMPLE!!!
-
-    "<" is Leif in my edited font!
-]]--
 
 --[[ Targets specifiers:
 
@@ -59,16 +51,6 @@ _KABBU_REGISTER.AbilityRegistry = {
         OnExecuted = function()
             local name = BugTaleLibrary.Actors[BugTaleLibrary.TargetSelected].Name;
             BattleDialog("[noskip]Kabbu inspires his fallen ally...\n[w:1][func:ReviveActor,{"..BugTaleLibrary.TargetSelected ..",4}][noskip:off]" ..name .." got up with 4 HP!")
-        end
-    },
-    ["Frozen Drill"] = {
-        Name = "kabbu/frozendrill",
-        DisplayName = "Frozen Drill",
-        AdditionalActors = {"Leif"},
-        Description = "Severe dmg to enemy twice.",
-        Target = "ENEMIES",
-        OnExecuted = function()
-            BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 3}, {BugTaleLibrary.TargetSelected, Player.atk * 3}})
         end
     }
 }

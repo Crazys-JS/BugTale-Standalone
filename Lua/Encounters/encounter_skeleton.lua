@@ -33,11 +33,11 @@ BugTaleLibrary = require 'bugtale'
 require 'behavior/othermenu' -- This library creates the "other" menu.
 
 --!!!! REGISTER CHARACTERS HERE!!!--
-_KABBU_REGISTER = require('characters/kabbu')
+_ZERO_REGISTER = require('characters/zero')
 _LEIF_REGISTER = require('characters/leif')
 
-_KABBU_REGISTER.Register(39) -- Spawn UI at X:39.
-_LEIF_REGISTER.Register(420) -- Spawn UI at X:420.
+_ZERO_REGISTER.Register(39) -- Spawn UI at X:39.
+_LEIF_REGISTER.Register(420)
 
 _ITEM_REGISTRY = require('item/defaults'); -- This library adds some items from bug fables to the encounter.
 BugTaleLibrary.SetInventory({

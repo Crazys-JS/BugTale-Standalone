@@ -1,5 +1,4 @@
 _LEIF_REGISTER = {};
-_LEIF_REGISTER.ID = 1;
 
 --[[ Targets specifiers:
 
@@ -55,17 +54,6 @@ _LEIF_REGISTER.AbilityRegistry = {
         Target = "ENEMIES",
         OnExecuted = function()
             BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 2}})
-        end
-    },
-    ["Frozen Drill"] = {
-        Name = "leif/frozendrill",
-        DisplayName = "Frozen Drill",
-        AdditionalActors = {"Kabbu"},
-        Description = "Severe dmg to enemy twice.",
-        Target = "ENEMIES",
-        TPCost = 0,
-        OnExecuted = function()
-            BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 3}, {BugTaleLibrary.TargetSelected, Player.atk * 3}})
         end
     }
 }

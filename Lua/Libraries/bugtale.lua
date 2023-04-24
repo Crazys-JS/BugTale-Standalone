@@ -21,7 +21,7 @@ BugTaleCharacters.ActionProperties = {};
 BugTaleCharacters.TextVisuals = {};
 BugTaleCharacters.RevertState = "ACTIONSELECT"
 
-BugTaleCharacters.TeamName = "TEAM SNAKEMOUTH"
+BugTaleCharacters.TeamName = "???"
 BugTaleCharacters.TeamLV = 1;
 
 QueuedSpyDialog = nil;
@@ -71,6 +71,16 @@ BugTaleCharacters.TPCostText.HideBubble()
 BugTaleCharacters.TPCostText.SetAnchor(0,0);
 BugTaleCharacters.TPCostText.SetParent(BugTaleCharacters.TPCostBG);
 BugTaleCharacters.TPCostText.MoveTo(35, 12);
+
+BugTaleCharacters.PageText = CreateText("[instant]", {0,0}, 141, "BelowArena");
+BugTaleCharacters.PageText.progressmode = "none";
+BugTaleCharacters.PageText.deleteWhenFinished = false;
+BugTaleCharacters.PageText.color = {1,1,1,1};
+BugTaleCharacters.PageText.SetFont("uibattlesmall")
+BugTaleCharacters.PageText.HideBubble()
+BugTaleCharacters.PageText.SetAnchor(1,0);
+BugTaleCharacters.PageText.MoveTo(300,63);
+BugTaleCharacters.PageText.color = {.75,.75,.75}
 
 BugTaleCharacters.SkillDescriptionTXT = CreateText("[instant]", {0,0}, 565, "BelowPlayer");
 BugTaleCharacters.SkillDescriptionTXT.progressmode = "none";
@@ -411,6 +421,8 @@ function BugTaleCharacters.CreateTargetSelection(mode)
         x.Remove()
     end
 
+    BugTaleCharacters.PageText.SetText("[instant]");
+
     BugTaleCharacters.ActiveActionImages = {};
 
     BugTaleCharacters.SkillDescriptionTXT.SetText("[noskip][instant]")
@@ -570,6 +582,12 @@ end
 function BugTaleCharacters.ChangeActor(newActor)
     if newActor then
         BugTaleCharacters.CurrentActor = newActor;
+
+        -- New event to listen to.
+        local actorData = BugTaleCharacters.Actors[newActor];
+        if actorData and actorData.OnActorTurn then
+            actorData.OnActorTurn(newActor)
+        end
     else
         --Find the best possible actor.
         local currentActor = BugTaleCharacters.GetCurrentActor()
@@ -584,6 +602,12 @@ function BugTaleCharacters.ChangeActor(newActor)
             end
 
             BugTaleCharacters.CurrentActor = toSelect
+
+            -- New event to listen to.
+            local actorData = BugTaleCharacters.Actors[toSelect];
+            if actorData and actorData.OnActorTurn then
+                actorData.OnActorTurn(newActor)
+            end
         end
     end
 
@@ -754,6 +778,13 @@ function BugTaleCharacters.DisplayActionSelectPage()
     local firstIndex = page * 4 + 1;
     local lastIndex = firstIndex + 3;
 
+    local maxPages = math.ceil(#BugTaleCharacters.ActiveActions / 4);
+    if(maxPages > 1) then
+        BugTaleCharacters.PageText.SetText("[instant]PAGE " ..page + 1 .."/" ..maxPages);
+    else
+        BugTaleCharacters.PageText.SetText("[instant]");
+    end
+
     for i,x in pairs(BugTaleCharacters.ActiveActionImages) do
         x.Remove()
     end
@@ -902,6 +933,8 @@ function BugTaleCharacters.StopActionSelect()
     for i,x in pairs(BugTaleCharacters.ActiveActionImages) do
         x.Remove()
     end
+
+    BugTaleCharacters.PageText.SetText("[instant]");
 
     BugTaleCharacters.ActiveActionImages = {};
 end
@@ -1116,6 +1149,11 @@ function BugTaleCharacters.TurnBegin()
         if x.Health <= 0 then
             BugTaleCharacters.HealActor(i, 1, true);
             healSFX = true
+        end
+
+        -- New event to listen to.
+        if x.OnTeamTurn then
+            x.OnTeamTurn(i)
         end
     end
 
