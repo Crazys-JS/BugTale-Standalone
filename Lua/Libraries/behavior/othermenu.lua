@@ -1,7 +1,7 @@
 --[[
 
     This library has default other menu actions provided by the original bugtale library. Import this module after bugtale library
-    in order to get these options.
+    in order to get these options. MP VERSION.
 
 ]]--
 
@@ -30,10 +30,10 @@ BugTaleLibrary.RegisterActionProperty({
 BugTaleLibrary.RegisterActionProperty({
     Name = "Do Nothing",
     DisplayName = "* Do Nothing",
-    Description = "+16% TP.",
+    Description = "+2 MP.",
     Target = "AUTO",
     OnExecuted = function()
-        ChangeTP(16)
+        ChangeMP(BugTaleLibrary.CurrentActor, 2)
         State("ENEMYDIALOGUE")
     end
 });

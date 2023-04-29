@@ -49,28 +49,28 @@ BugTaleCharacters.ActionSelectionTexts = {};
 BugTaleCharacters.SelectionUIIndex = 1;
 BugTaleCharacters.ActionSelectionActive = false;
 BugTaleCharacters.ActionSelectionActivating = false;
-BugTaleCharacters.ActionSelectTPCostAnimation = 0;
+BugTaleCharacters.ActionSelectMPCostAnimation = 0;
 
 BugTaleCharacters.SelectionHeart = CreateSprite("ut-heart", "Top")
 BugTaleCharacters.SelectionHeart.SetParent(Player.sprite);
 BugTaleCharacters.SelectionHeart.color = {1,0,0,0}
 BugTaleCharacters.SelectionHeart.MoveTo(0,0)
 
-BugTaleCharacters.TPCostBG = CreateSprite("UI/tp_cost_bg", "BelowArena");
-BugTaleCharacters.TPCostBG.SetPivot(0,0);
-BugTaleCharacters.TPCostBG.MoveToAbs(436, 94);
-BugTaleCharacters.TPCostBG.alpha = 0;
-BugTaleCharacters.TPCostVisible = false;
+BugTaleCharacters.MPCostBG = CreateSprite("UI/tp_cost_bg", "BelowArena");
+BugTaleCharacters.MPCostBG.SetPivot(0,0);
+BugTaleCharacters.MPCostBG.MoveToAbs(436, 94);
+BugTaleCharacters.MPCostBG.alpha = 0;
+BugTaleCharacters.MPCostVisible = false;
 
-BugTaleCharacters.TPCostText = CreateText("[instant]", {0,0}, 141, "BelowArena");
-BugTaleCharacters.TPCostText.progressmode = "none";
-BugTaleCharacters.TPCostText.deleteWhenFinished = false;
-BugTaleCharacters.TPCostText.color = {1,1,1,1};
-BugTaleCharacters.TPCostText.SetFont("uidialog")
-BugTaleCharacters.TPCostText.HideBubble()
-BugTaleCharacters.TPCostText.SetAnchor(0,0);
-BugTaleCharacters.TPCostText.SetParent(BugTaleCharacters.TPCostBG);
-BugTaleCharacters.TPCostText.MoveTo(35, 12);
+BugTaleCharacters.MPCostText = CreateText("[instant]", {0,0}, 141, "BelowArena");
+BugTaleCharacters.MPCostText.progressmode = "none";
+BugTaleCharacters.MPCostText.deleteWhenFinished = false;
+BugTaleCharacters.MPCostText.color = {1,1,1,1};
+BugTaleCharacters.MPCostText.SetFont("uidialog")
+BugTaleCharacters.MPCostText.HideBubble()
+BugTaleCharacters.MPCostText.SetAnchor(0,0);
+BugTaleCharacters.MPCostText.SetParent(BugTaleCharacters.MPCostBG);
+BugTaleCharacters.MPCostText.MoveTo(42, 12);
 
 BugTaleCharacters.PageText = CreateText("[instant]", {0,0}, 141, "BelowArena");
 BugTaleCharacters.PageText.progressmode = "none";
@@ -140,7 +140,6 @@ for i=0, 2 do
     text.SetAnchor(0,0);
 
     text.MoveTo(absx,absy);
-
     table.insert(BugTaleCharacters.TargetSelectionTexts, text);
 
     local absxBAR = 303;
@@ -231,10 +230,12 @@ function BugTaleCharacters.ConvertColor32ToHex(color)
 	return string.reverse(final)
 end
 
+-- This is so other scripts (enemies and waves) can call BugTaleLibrary.
 function CallBugTale(functionName, ...)
     return BugTaleCharacters[functionName](...)
 end
 
+-- This is so other scripts (enemies and waves) can call BugTaleLibrary.
 function GetBugTaleVar(varName)
     return BugTaleCharacters[varName]
 end
@@ -333,7 +334,8 @@ function BugTaleCharacters.CreateTargetSelection(mode)
     
     BugTaleCharacters.TargetSelectionValues = {};
     BugTaleCharacters.TargetSelected = 0;
-    BugTaleCharacters.TargetSelectionEnemyMode = false;
+
+    TargetSelectionEnemyMode = false;
 
     if mode == "ALLIES" then
         for i,x in pairs(BugTaleCharacters.Actors) do
@@ -341,7 +343,7 @@ function BugTaleCharacters.CreateTargetSelection(mode)
             local xPos = portrait.absx;
             local yPos = portrait.absy + portrait.height / 2 + 30;
 
-            local data = {xPos, yPos, i, "* " ..x.Name, x.Health / x.MaxHealth};
+            local data = {xPos, yPos, i, "* " ..x.Name, x.Health / x.MaxHealth, x.Mana / x.MaxMana};
             BugTaleCharacters.TargetSelectionValues[i] = data;
         end
     elseif mode == "ALIVEALLIES" then
@@ -351,7 +353,7 @@ function BugTaleCharacters.CreateTargetSelection(mode)
                 local xPos = portrait.absx;
                 local yPos = portrait.absy + portrait.height / 2 + 30;
 
-                local data = {xPos, yPos, i, "* " ..x.Name, x.Health / x.MaxHealth};
+                local data = {xPos, yPos, i, "* " ..x.Name, x.Health / x.MaxHealth, x.Mana / x.MaxMana};
                 table.insert(BugTaleCharacters.TargetSelectionValues, data);
             end
         end
@@ -362,7 +364,7 @@ function BugTaleCharacters.CreateTargetSelection(mode)
                 local xPos = portrait.absx;
                 local yPos = portrait.absy + portrait.height / 2 + 30;
     
-                local data = {xPos, yPos, i, "* " ..x.Name, x.Health / x.MaxHealth};
+                local data = {xPos, yPos, i, "* " ..x.Name, x.Health / x.MaxHealth, x.Mana / x.MaxMana};
                 table.insert(BugTaleCharacters.TargetSelectionValues, data);
             end
         end
@@ -373,12 +375,12 @@ function BugTaleCharacters.CreateTargetSelection(mode)
                 local xPos = portrait.absx;
                 local yPos = portrait.absy + portrait.height / 2 + 30;
     
-                local data = {xPos, yPos, i, "* " ..x.Name, x.Health / x.MaxHealth};
+                local data = {xPos, yPos, i, "* " ..x.Name, x.Health / x.MaxHealth, x.Mana / x.MaxMana};
                 table.insert(BugTaleCharacters.TargetSelectionValues, data);
             end
         end
     elseif mode == "ENEMIES" then
-        BugTaleCharacters.TargetSelectionEnemyMode = false;
+        TargetSelectionEnemyMode = true;
         local currentID = 1;
         for i,x in pairs(enemies) do
             if x.GetVar("isactive") then
@@ -408,6 +410,19 @@ function BugTaleCharacters.CreateTargetSelection(mode)
         end
     end
 
+    local barColor = {1,1,0}
+    local backColor = {128, 0, 0}
+
+    if(not TargetSelectionEnemyMode) then
+        barColor = {0,.5,1}
+        backColor = {255,0,0}
+    end
+
+    for _, x in pairs(BugTaleCharacters.TargetSelectionMercyBars) do
+        x.fill.color = barColor;
+        x.background.color = backColor;
+    end
+
     if #BugTaleCharacters.TargetSelectionValues == 0 then
         State(BugTaleCharacters.RevertState);
         return
@@ -432,7 +447,7 @@ function BugTaleCharacters.CreateTargetSelection(mode)
 end
 
 -- DO NOT PUT "Portraits/" IN PORTRAIT VARIABLE, THAT IS DONE AUTOMATICALLY FOR YOU!
-function BugTaleCharacters.CreateActor(name, color32, hp, assetName, voice, posX, actionList)
+function BugTaleCharacters.CreateActor(name, color32, hp, mana, assetName, voice, posX, actionList)
     local actor = {};
 
     actor.Name = name;
@@ -442,8 +457,13 @@ function BugTaleCharacters.CreateActor(name, color32, hp, assetName, voice, posX
     actor.Relayed = false;
     actor.Actions = actionList;
     actor.LastButton = "FIGHT"
+
     actor.MaxHealth = hp;
     actor.Health = hp;
+
+    actor.MaxMana = mana;
+    actor.Mana = mana;
+
     actor.HighlightActor = false;
     actor.Voice = voice
 
@@ -495,6 +515,12 @@ function BugTaleCharacters.CreateActor(name, color32, hp, assetName, voice, posX
     actor.HealthBar.background.SetParent(actor.UI);
     actor.HealthBar.background.SetAnchor(0,1);
     actor.HealthBar.background.MoveTo(65, -24)
+
+    actor.ManaBar = CreateBar(0,0, 40, 3)
+    actor.ManaBar.background.SetParent(actor.UI);
+    actor.ManaBar.background.SetAnchor(0,1);
+    actor.ManaBar.background.MoveTo(65, -24)
+    actor.ManaBar.fill.color = {0,.5,1}
 
     actor.HealthText = CreateText("[instant]7/7", {0,0}, 100, "BelowArena")
     actor.HealthText.color = {1,1,1}
@@ -655,7 +681,7 @@ function BugTaleCharacters.RegisterActionProperty(properties)
         Name: string, -- The identifier for this action.
         DisplayName: string, -- How the action will appear in the menu.
 
-        TPCost: number?, --Defaults to 0.
+        MPCost: number?, --Defaults to 0.
         AdditionalActors: number[]?, --What other actors will lose their turn if this action is executed. Defaults to nil.
         OnExecuted: function()?: any, -- The function to execute. Can be set to nil if not implemented yet.
         ConditionCheck: function()?: boolean, -- The function to execute before target selection algorithm. Returns condition success boolean.
@@ -686,8 +712,8 @@ function BugTaleCharacters.HandleAction(actionID)
             if(not result) then return end;
         end
 
-        if action.TPCost then
-            if GetTP() < action.TPCost then
+        if action.MPCost then
+            if BugTaleCharacters.GetCurrentActor().Mana < action.MPCost then
                 return
             end
         end
@@ -739,8 +765,8 @@ function BugTaleCharacters.HandleAction(actionID)
             BugTaleCharacters.CreateTargetSelection(target)
         else
             State("PAUSE")
-            if BugTaleCharacters.QueuedAction.TPCost and BugTaleCharacters.QueuedAction.TPCost > 0 then
-                ChangeTP(-BugTaleCharacters.QueuedAction.TPCost)
+            if BugTaleCharacters.QueuedAction.MPCost and BugTaleCharacters.QueuedAction.MPCost > 0 then
+                BugTaleCharacters.ChangeMP(BugTaleCharacters.GetCurrentActor(), -BugTaleCharacters.QueuedAction.MPCost)
             end
             if BugTaleCharacters.QueuedAction.AdditionalActors then
                 for i,x in pairs(BugTaleCharacters.QueuedAction.AdditionalActors) do
@@ -856,21 +882,21 @@ function BugTaleCharacters.DisplayActionSelectPage()
     end
 
     local currentAction = BugTaleCharacters.ActionProperties[BugTaleCharacters.ActiveActions[BugTaleCharacters.SelectionUIIndex]];
-    if currentAction.TPCost and currentAction.TPCost > 0 then
-        if GetTP() < currentAction.TPCost then
-            BugTaleCharacters.TPCostText.color = {1,0,0}
+    if currentAction.MPCost and currentAction.MPCost > 0 then
+        if BugTaleCharacters.GetCurrentActor().Mana < currentAction.MPCost then
+            BugTaleCharacters.MPCostText.color = {1,0,0}
         else
-            BugTaleCharacters.TPCostText.color = {1,1,1}
+            BugTaleCharacters.MPCostText.color = {1,1,1}
         end
-        BugTaleCharacters.TPCostText.SetText("[noskip][instant]" ..currentAction.TPCost .."% TP")
+        BugTaleCharacters.MPCostText.SetText("[noskip][instant]" ..currentAction.MPCost .."/" ..BugTaleLibrary.GetCurrentActor().Mana .." MP")
         
-        if not BugTaleCharacters.TPCostVisible then
-            BugTaleCharacters.TPCostVisible = true
-            BugTaleCharacters.ActionSelectTPCostAnimation = 15
+        if not BugTaleCharacters.MPCostVisible then
+            BugTaleCharacters.MPCostVisible = true
+            BugTaleCharacters.ActionSelectMPCostAnimation = 15
         end
-    elseif BugTaleCharacters.TPCostVisible then
-        BugTaleCharacters.TPCostVisible = false
-        BugTaleCharacters.ActionSelectTPCostAnimation = 15
+    elseif BugTaleCharacters.MPCostVisible then
+        BugTaleCharacters.MPCostVisible = false
+        BugTaleCharacters.ActionSelectMPCostAnimation = 15
     end
     if currentAction.Description then
         BugTaleCharacters.SkillDescriptionTXT.SetText("[instant]" .. currentAction.Description)
@@ -891,12 +917,11 @@ end
 function BugTaleCharacters.StartActionSelectSequence()
     State("NONE")
 
-    BugTaleCharacters.TPCostVisible = false;
-    BugTaleCharacters.TPCostBG.MoveTo(BugTaleCharacters.TPCostBG.absx, 94)
-    BugTaleCharacters.TPCostBG.alpha = 1;
-    BugTaleCharacters.TPCostText.alpha = 1;
+    BugTaleCharacters.MPCostVisible = false;
+    BugTaleCharacters.MPCostBG.MoveTo(BugTaleCharacters.MPCostBG.absx, 94)
+    BugTaleCharacters.MPCostBG.alpha = 1;
+    BugTaleCharacters.MPCostText.alpha = 1;
 
-    
     BugTaleCharacters.RevertState = "SKILLSELECT"
     BugTaleCharacters.SelectionUIIndex = 1;
     
@@ -919,9 +944,9 @@ end
 function BugTaleCharacters.StopActionSelect()
     BugTaleCharacters.ActionSelectionActive = false;
 
-    BugTaleCharacters.TPCostVisible = false;
-    BugTaleCharacters.TPCostBG.alpha = 0;
-    BugTaleCharacters.TPCostText.alpha = 0;
+    BugTaleCharacters.MPCostVisible = false;
+    BugTaleCharacters.MPCostBG.alpha = 0;
+    BugTaleCharacters.MPCostText.alpha = 0;
     BugTaleCharacters.SkillDescriptionTXT.alpha = 0
 
     BugTaleCharacters.SelectionHeart.alpha = 0;
@@ -942,11 +967,13 @@ end
 function AfterAttack()
     Audio.PlaySound(HitSound);
 
+    --[[
     if GetCurrentState() == "ATTACKING" then
         if Player.lasthitmultiplier > 1.8 then
             ChangeTP(6)
         end
     end
+    ]]--
 end
 
 function IncreaseBugTaleEXP(exp)
@@ -1382,6 +1409,11 @@ function BugTaleCharacters.EncounterStarting()
     State("ACTIONSELECT")
 end
 
+function BugTaleCharacters.ChangeMP(actor, amount)
+    actor.Mana = math.max(0, math.min(actor.Mana + amount, actor.MaxMana));
+    actor.ManaBar.SetInstant(math.max(0, actor.Mana / actor.MaxMana));
+end
+
 function BugTaleCharacters.SkipToEnemyDialogue()
     for i,x in pairs(BugTaleCharacters.Actors) do
         x.Turns = math.min(0, x.Turns);
@@ -1396,20 +1428,20 @@ end
 
 function BugTaleCharacters.Update()
     
-    if BugTaleCharacters.ActionSelectTPCostAnimation > 0 then
-        BugTaleCharacters.ActionSelectTPCostAnimation = BugTaleCharacters.ActionSelectTPCostAnimation - 1;
-        local ratio = 1 - BugTaleCharacters.ActionSelectTPCostAnimation / 15;
+    if BugTaleCharacters.ActionSelectMPCostAnimation > 0 then
+        BugTaleCharacters.ActionSelectMPCostAnimation = BugTaleCharacters.ActionSelectMPCostAnimation - 1;
+        local ratio = 1 - BugTaleCharacters.ActionSelectMPCostAnimation / 15;
         local startAt = 52;
         local destination = 94;
 
-        if BugTaleCharacters.TPCostVisible then
+        if BugTaleCharacters.MPCostVisible then
             startAt = 94;
             destination = 52;
         end
 
         local travel = destination - startAt;
         local newY = startAt + travel * math.sin(ratio * (math.pi / 2));
-        BugTaleCharacters.TPCostBG.MoveTo(BugTaleCharacters.TPCostBG.absx, newY);
+        BugTaleCharacters.MPCostBG.MoveTo(BugTaleCharacters.MPCostBG.absx, newY);
     end
 
     if BugTaleCharacters.CurrentTargetIndex > 0 then
@@ -1438,8 +1470,8 @@ function BugTaleCharacters.Update()
             BugTaleCharacters.HideTargetSelection();
 
             if(BugTaleCharacters.QueuedAction) then
-                if BugTaleCharacters.QueuedAction.TPCost and BugTaleCharacters.QueuedAction.TPCost > 0 then
-                    ChangeTP(-BugTaleCharacters.QueuedAction.TPCost)
+                if BugTaleCharacters.QueuedAction.MPCost and BugTaleCharacters.QueuedAction.MPCost > 0 then
+                    BugTaleCharacters.ChangeMP(BugTaleCharacters.GetCurrentActor(), -BugTaleCharacters.QueuedAction.MPCost)
                 end
                 if BugTaleCharacters.QueuedAction.AdditionalActors then
                     for i,x in pairs(BugTaleCharacters.QueuedAction.AdditionalActors) do
@@ -1481,8 +1513,8 @@ function BugTaleCharacters.Update()
         end
     elseif BugTaleCharacters.ActionSelectionActive then
         local amount = #BugTaleCharacters.ActiveActions
-        local lastPage = math.ceil(amount / 4);
-        local currentPage = math.ceil((BugTaleCharacters.SelectionUIIndex - 1) / 4);
+        --local lastPage = math.ceil(amount / 4);
+        --local currentPage = math.ceil((BugTaleCharacters.SelectionUIIndex - 1) / 4);
 
         local isEven = BugTaleCharacters.SelectionUIIndex % 2 == 0;
         local starting = BugTaleCharacters.SelectionUIIndex;
@@ -1820,6 +1852,10 @@ end
 
 function SetEnemyTargets(...)
     BugTaleCharacters.SetEnemyTargets(...);
+end
+
+function ChangeMP(actorID, amount)
+    BugTaleCharacters.ChangeMP(BugTaleCharacters.Actors[actorID], amount);
 end
 ------------------------------------------------
 

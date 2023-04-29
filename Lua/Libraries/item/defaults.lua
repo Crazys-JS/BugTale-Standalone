@@ -1,5 +1,5 @@
 --[[
-    @Crazys_JS 2023
+    @Crazys_JS 2023 MP VERSION
     These are just some Bug Fables items in undertale form. Feel free to use this library for some generic items.
 ]]--
 
@@ -50,13 +50,13 @@ BugTaleLibrary.RegisterActionProperty({
 BugTaleLibrary.RegisterActionProperty({
     Name = "Mushroom",
     DisplayName = "* Mushroom",
-    Description = "3 HP Recovery & +8% TP",
+    Description = "3 HP/MP Recovery",
     Target = "ALLIES",
     IsConsumable = true,
     OnExecuted = function()
         local name = BugTaleLibrary.Actors[BugTaleLibrary.TargetSelected].Name;
         HealActor(BugTaleLibrary.TargetSelected, 3)
-        ChangeTP(8)
+        ChangeMP(BugTaleLibrary.TargetSelected, 3)
 
         BattleDialog(name .." ate the Mushroom.\n" ..name .." recovered 3 HP!\nThe party gained 8% TP!")
     end
@@ -65,13 +65,13 @@ BugTaleLibrary.RegisterActionProperty({
 BugTaleLibrary.RegisterActionProperty({
     Name = "Abomihoney",
     DisplayName = "* Abomihoney",
-    Description = "+75% TP at a big price.",
-    Target = "AUTO",
+    Description = "+20 MP at a big price.",
+    Target = "ALLIES",
     IsConsumable = true,
     OnExecuted = function()
         local name = BugTaleLibrary.Actors[BugTaleLibrary.CurrentActor].Name;
-        DamageActor(BugTaleLibrary.CurrentActor, 99)
-        ChangeTP(75)
+        DamageActor(BugTaleLibrary.TargetSelected, 99)
+        ChangeMP(BugTaleLibrary.TargetSelected, 20)
     end
 });
 
@@ -110,23 +110,27 @@ BugTaleLibrary.RegisterActionProperty({
 BugTaleLibrary.RegisterActionProperty({
     Name = "Honey Drop",
     DisplayName = "* Honey Drop",
-    Description = "+25% TP",
-    Target = "AUTO",
+    Description = "+5 MP",
+    Target = "ALLIES",
     IsConsumable = true,
     OnExecuted = function()
-        ChangeTP(25)
-        BattleDialog("Nothing as refreshing as honey!\nThe party gained 25% TP!")
+        local target = BugTaleLibrary.Actors[BugTaleLibrary.TargetSelected];
+        local name = target.Name;
+        ChangeMP(BugTaleLibrary.TargetSelected, 5)
+        BattleDialog("Nothing as refreshing as honey!\n" .. name .. " recovered 5 MP!");
     end
 });
 
 BugTaleLibrary.RegisterActionProperty({
     Name = "Glazed Honey",
     DisplayName = "* Glazed Honey",
-    Description = "+35% TP",
-    Target = "AUTO",
+    Description = "+10 MP",
+    Target = "ALLIES",
     IsConsumable = true,
     OnExecuted = function()
-        ChangeTP(35)
-        BattleDialog("Tastes even better when warm!\nThe party gained 35% TP!")
+        local target = BugTaleLibrary.Actors[BugTaleLibrary.TargetSelected];
+        local name = target.Name;
+        ChangeMP(BugTaleLibrary.TargetSelected, 10)
+        BattleDialog("Tastes even better when warm!\n" .. name .. " recovered 10 MP!");
     end
 });

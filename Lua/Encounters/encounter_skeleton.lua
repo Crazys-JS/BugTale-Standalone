@@ -1,5 +1,5 @@
 --[[
-    @Crazys_JS 2023
+    @Crazys_JS 2023 MP VERSION
     Basic encounter template for well... encounters. Most stuff are the same as normal CYF.
 ]]--
 
@@ -26,8 +26,7 @@ deathtext = {"And their tale was never finished..."}
 
 
 -- Make sure these are in your encounter script: -------------------
-TPLibrary = require 'tp_library'
-BugTaleLibrary = require 'bugtale'
+BugTaleLibrary = require 'bugtale_mp'
 --------------------------------------------------------------------
 
 require 'behavior/othermenu' -- This library creates the "other" menu.
@@ -58,18 +57,17 @@ function EncounterStarting()
     for i,x in pairs(enemies) do
         x.GetVar("monstersprite").layer = "BelowArena"
     end
-    
+
     -- Call Bugtale yes.
     BugTaleLibrary.EncounterStarting()
 end
 
 function EnemyDialogueStarting()
     local enemyTurn = BugTaleLibrary.ActorFinish();
-    
+
     if enemyTurn then
         -- Good location for setting monster dialogue depending on how the battle is going.
         -- Enemy turn is starting!
-        
     end
 end
 
@@ -99,5 +97,4 @@ end
 
 function Update()
     BugTaleLibrary.Update();
-    TPLibrary.Update();
 end

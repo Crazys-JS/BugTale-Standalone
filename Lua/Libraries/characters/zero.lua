@@ -44,7 +44,7 @@ _ZERO_REGISTER.AbilityRegistry = {
         Name = "risingslash",
         DisplayName = "* R. Slash",
         Description = "Heavy damage to enemy.",
-        TPCost = 16,
+        MPCost = 2,
         Target = "ENEMIES",
         OnExecuted = function()
             local zero = BugTaleLibrary.Actors[BugTaleLibrary.CurrentActor];
@@ -63,11 +63,11 @@ _ZERO_REGISTER.AbilityRegistry = {
             if zero.IsCharged then
                 _ZERO_REGISTER.AbilityRegistry[2].DisplayName = "[color:FFFF00]* C. Slash"
                 _ZERO_REGISTER.AbilityRegistry[2].Description = "Brutal damage to enemy."
-                _ZERO_REGISTER.AbilityRegistry[2].TPCost = 0
+                _ZERO_REGISTER.AbilityRegistry[2].MPCost = 0
             else
                 _ZERO_REGISTER.AbilityRegistry[2].DisplayName = "* R. Slash"
                 _ZERO_REGISTER.AbilityRegistry[2].Description = "Heavy damage to enemy."
-                _ZERO_REGISTER.AbilityRegistry[2].TPCost = 16
+                _ZERO_REGISTER.AbilityRegistry[2].MPCost = 2
             end
         end
     },
@@ -76,7 +76,7 @@ _ZERO_REGISTER.AbilityRegistry = {
         Name = "zero/charge",
         DisplayName = "* Charge",
         Description = "Z-Saber strength up.",
-        TPCost = 16,
+        MPCost = 2,
         Target = "AUTO",
         OnExecuted = function()
             local zero = BugTaleLibrary.Actors[BugTaleLibrary.CurrentActor];
@@ -100,7 +100,7 @@ _ZERO_REGISTER.AbilityRegistry = {
         Name = "zero/dash",
         DisplayName = "* Dash",
         Description = "Move faster next wave.",
-        TPCost = 8,
+        MPCost = 1,
         Target = "AUTO",
         OnExecuted = function()
             local zero = BugTaleLibrary.Actors[BugTaleLibrary.CurrentActor];
@@ -148,14 +148,15 @@ _ZERO_REGISTER.AbilityRegistry = {
 
 _ZERO_REGISTER.UnlockedSkills = {}
 
-for i,x in pairs(_ZERO_REGISTER.AbilityRegistry) do
+for _,x in pairs(_ZERO_REGISTER.AbilityRegistry) do
     table.insert(_ZERO_REGISTER.UnlockedSkills, x.Name)
     BugTaleLibrary.RegisterActionProperty(x)
 end
 
 function _ZERO_REGISTER.Register(xPos)
-    _ZERO_REGISTER.ID = BugTaleLibrary.CreateActor("Zero", {255,0,0}, 14, "Zero", "kabbu", xPos, _ZERO_REGISTER.UnlockedSkills);
+    _ZERO_REGISTER.ID = BugTaleLibrary.CreateActor("Zero", {255,0,0}, 14, 5, "Zero", "kabbu", xPos, _ZERO_REGISTER.UnlockedSkills);
     BugTaleLibrary.SetActorAttack(_ZERO_REGISTER.ID, "Slash")
+
     BugTaleLibrary.Actors[_ZERO_REGISTER.ID].OnTeamTurn = function(currentID)
         local zero = BugTaleLibrary.Actors[currentID];
         if zero.IsDashing then

@@ -28,11 +28,11 @@ _LEIF_REGISTER.AbilityRegistry = {
         Name = "Icefall",
         DisplayName = "* Icefall",
         Description = "Medium damage to all enemies.",
-        TPCost = 16,
+        MPCost = 4,
         Target = "AUTO",
         OnExecuted = function()
             local aliveEnemies = 0;
-            for i, x in pairs(enemies) do
+            for _, x in pairs(enemies) do
                 if x.GetVar("isactive") then
                     aliveEnemies = aliveEnemies + 1
                 end
@@ -50,7 +50,7 @@ _LEIF_REGISTER.AbilityRegistry = {
         Name = "Frigid Coffin",
         DisplayName = "* F. Coffin",
         Description = "High damage to an enemy.",
-        TPCost = 16,
+        MPCost = 4,
         Target = "ENEMIES",
         OnExecuted = function()
             BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 2}})
@@ -66,7 +66,7 @@ for i,x in pairs(_LEIF_REGISTER.AbilityRegistry) do
 end
 
 function _LEIF_REGISTER.Register(xPos)
-    _LEIF_REGISTER.ID = BugTaleLibrary.CreateActor("Leif", {0,148,255}, 7, "Leif", "leif", xPos, _LEIF_REGISTER.UnlockedSkills);
+    _LEIF_REGISTER.ID = BugTaleLibrary.CreateActor("Leif", {0,148,255}, 7, 15, "Leif", "leif", xPos, _LEIF_REGISTER.UnlockedSkills);
     BugTaleCharacters.SetActorAttack(_LEIF_REGISTER.ID, "Ice")
 end
 

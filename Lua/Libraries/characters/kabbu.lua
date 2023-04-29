@@ -36,7 +36,7 @@ _KABBU_REGISTER.AbilityRegistry = {
         Name = "Heavy Strike",
         DisplayName = "* Heavy Strike",
         Description = "High damage to one enemy.",
-        TPCost = 16,
+        MPCost = 3,
         Target = "ENEMIES",
         OnExecuted = function()
             BugTaleLibrary.CreateAttacks({{BugTaleLibrary.TargetSelected, Player.atk * 2}})
@@ -46,7 +46,7 @@ _KABBU_REGISTER.AbilityRegistry = {
         Name = "Pep Talk",
         DisplayName = "* Pep Talk",
         Description = "Revive ally.",
-        TPCost = 50,
+        MPCost = 5,
         Target = "DOWNEDALLIES",
         OnExecuted = function()
             local name = BugTaleLibrary.Actors[BugTaleLibrary.TargetSelected].Name;
@@ -59,12 +59,12 @@ _KABBU_REGISTER.UnlockedSkills = {}
 
 for i,x in pairs(_KABBU_REGISTER.AbilityRegistry) do
     table.insert(_KABBU_REGISTER.UnlockedSkills, x.Name)
-    BugTaleCharacters.RegisterActionProperty(x)
+    BugTaleLibrary.RegisterActionProperty(x)
 end
 
 function _KABBU_REGISTER.Register(xPos)
-    _KABBU_REGISTER.ID = BugTaleLibrary.CreateActor("Kabbu", {0,127,14}, 9, "Kabbu", "kabbu", xPos, _KABBU_REGISTER.UnlockedSkills);
-    BugTaleCharacters.SetActorAttack(_KABBU_REGISTER.ID, "Slash")
+    _KABBU_REGISTER.ID = BugTaleLibrary.CreateActor("Kabbu", {0,127,14}, 9, 10, "Kabbu", "kabbu", xPos, _KABBU_REGISTER.UnlockedSkills);
+    BugTaleLibrary.SetActorAttack(_KABBU_REGISTER.ID, "Slash")
 end
 
 return _KABBU_REGISTER
