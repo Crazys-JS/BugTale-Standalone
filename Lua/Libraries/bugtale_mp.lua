@@ -420,7 +420,7 @@ function BugTaleCharacters.CreateTargetSelection(mode)
 
     for _, x in pairs(BugTaleCharacters.TargetSelectionMercyBars) do
         x.fill.color = barColor;
-        x.background.color = backColor;
+        x.background.color = backColor; 
     end
 
     if #BugTaleCharacters.TargetSelectionValues == 0 then
