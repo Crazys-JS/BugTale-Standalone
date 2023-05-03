@@ -389,6 +389,9 @@ function _VEB_REGISTER.Register(xPos)
         local soulAcc = veb.SoulAcceleration or 0;
         if(soulAcc > 0) then veb.SoulAcceleration = soulAcc - 1 end
 
+        local resonate = veb.ResonateCooldown or 0;
+        if(resonate > 0) then veb.ResonateCooldown = resonate - 1 end
+
         local aoa = veb.AoA or 0;
         if aoa > 0 then veb.AoA = aoa - 1 end;
 
