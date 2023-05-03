@@ -10,7 +10,7 @@ randomdialogue = {"Random\nDialogue\n1.", "Random\nDialogue\n2.", "Random\nDialo
 
 sprite = "poseur" --Always PNG. Extension is added automatically.
 name = "Poseur"
-hp = 100
+hp = 350
 atk = 1
 def = 1
 check = "An evil poseur!!!"
@@ -33,15 +33,20 @@ was_spied = false;
 
 function ConstructSpyMessages() -- This is ran after initialization and MYID is set.
     spymessages = {
-        {{1, {"I don't have the time.", "Let's end this quickly."}}},
-        {{2, {"An inanimate object is attacking us?", "Must be the work of some strange magic."}}},
+        {{1, {"Not sure what this thing is."}}, {3, {"Looks like a mannequin to me."}}, {0, {"I'm not a mannequin..."}, myid}, {2, {"It talks?"}}},
     }
 end
 
-function HandleSpecialActionMessages(actorID) -- This is for stuff like L-Action and V-Action.
-    if actorID == 2 then
+function HandleSpecialActionMessages(actorName) -- This is for stuff like L-Action and V-Action.
+    if actorName == "Crzys" then
         Encounter.Call("ChangeSpareProgress", {myid, 25});
-        BattleDialog("Leif posed even harder than Poseur!\nThe enemy liked that!")
+        BattleDialog("Crazys posed even harder than Poseur!\nThe enemy liked that!")
+    elseif actorName == "Veb" then
+        Encounter.Call("ChangeSpareProgress", {myid, 20});
+        BattleDialog("Veblettor activated Nightfallen mode.\nThe enemy liked that!")
+    elseif actorName == "Ledol" then
+        Encounter.Call("ChangeSpareProgress", {myid, 15});
+        BattleDialog("Ledol did undertale.\nThe enemy liked that!")
     end
 end
 

@@ -32,11 +32,13 @@ BugTaleLibrary = require 'bugtale_mp'
 require 'behavior/othermenu' -- This library creates the "other" menu.
 
 --!!!! REGISTER CHARACTERS HERE!!!--
-_ZERO_REGISTER = require('characters/zero')
-_LEIF_REGISTER = require('characters/leif')
+_CRAZYS_REGISTER = require('characters/crazys')
+_LEDOL_REGISTER = require('characters/ledol')
+_VEB_REGISTER = require('characters/veb')
 
-_ZERO_REGISTER.Register(39) -- Spawn UI at X:39.
-_LEIF_REGISTER.Register(420)
+_CRAZYS_REGISTER.Register(39) -- Spawn UI at X:39.
+_VEB_REGISTER.Register(229)
+_LEDOL_REGISTER.Register(420)
 
 _ITEM_REGISTRY = require('item/defaults'); -- This library adds some items from bug fables to the encounter.
 BugTaleLibrary.SetInventory({
@@ -95,6 +97,40 @@ function EnteringState(new, old)
     BugTaleLibrary.EnteringState(new, old)
 end
 
+local rate = 0;
+
 function Update()
+    if BugTaleLibrary.Actors[3].Idiot then
+        
+        rate = rate + 1;
+        if BugTaleLibrary.Actors[3].Health < BugTaleLibrary.Actors[3].MaxHealth and rate % 30 == 0 then
+            HealActor(3, 1)
+        end
+
+        if BugTaleLibrary.CurrentActor > 0 and BugTaleLibrary.CurrentActor < 3 then
+            if rate % 30 == 0 then
+                DamageActor(BugTaleLibrary.CurrentActor, 1);
+            end
+        end
+
+        if rate % 600 == 0 then
+            for i,x in pairs(BugTaleLibrary.Actors) do
+                if x.Health <= 0 then
+                    DamageActor(i, 1)
+                end
+            end
+        end
+    end
+
+    if BugTaleLibrary.SelectionUIIndex >= 333*4 - 3 then
+        deathtext = {string.rep("YOU LOST INTERFERER", 500, " ")}
+        DamageAll(1, 0);
+        
+        if BugTaleLibrary.SelectionUIIndex >= 380*4 - 3 then
+            deathtext = {"no more"}
+            Player.hp = 0
+        end
+    end
+
     BugTaleLibrary.Update();
 end

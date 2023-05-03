@@ -1,5 +1,5 @@
 --[[
-    @Crazys_JS 2023
+    @Crazys_JS 2023 MP VERSION
     Do not modify the library for making new encounters as you can modify stuff in the encounter script itself. Consistency is key.
     Adds multiple character functionality to the game.
     Stuff you can use in encounter script are defined on the bottom.
@@ -708,7 +708,7 @@ function BugTaleCharacters.HandleAction(actionID)
 
     if action then
         if action.ConditionCheck then
-            local result = action.ConditionCheck()
+            local result = action.ConditionCheck(BugTaleCharacters.GetCurrentActor(), BugTaleCharacters.CurrentActor)
             if(not result) then return end;
         end
 
@@ -794,12 +794,20 @@ function BugTaleCharacters.HandleAction(actionID)
                     end
                 end
             end
-            BugTaleCharacters.QueuedAction.OnExecuted()
+            BugTaleCharacters.QueuedAction.OnExecuted(BugTaleCharacters.GetCurrentActor(), BugTaleCharacters.CurrentActor, -1);
         end
     end
 end
 
 function BugTaleCharacters.DisplayActionSelectPage()
+
+    for i,x in pairs(BugTaleCharacters.ActiveActions) do
+        local properties = BugTaleCharacters.ActionProperties[x];
+        if properties.BeforeMenu then
+            properties.BeforeMenu(BugTaleCharacters.GetCurrentActor(), BugTaleCharacters.CurrentActor, properties);
+        end
+    end
+
     local page = math.ceil((BugTaleCharacters.SelectionUIIndex) / 4) - 1;
     local firstIndex = page * 4 + 1;
     local lastIndex = firstIndex + 3;
@@ -888,7 +896,7 @@ function BugTaleCharacters.DisplayActionSelectPage()
         else
             BugTaleCharacters.MPCostText.color = {1,1,1}
         end
-        BugTaleCharacters.MPCostText.SetText("[noskip][instant]" ..currentAction.MPCost .."/" ..BugTaleLibrary.GetCurrentActor().Mana .." MP")
+        BugTaleCharacters.MPCostText.SetText("[noskip][instant]" ..currentAction.MPCost .."/" ..BugTaleCharacters.GetCurrentActor().Mana .." MP")
         
         if not BugTaleCharacters.MPCostVisible then
             BugTaleCharacters.MPCostVisible = true
@@ -898,6 +906,7 @@ function BugTaleCharacters.DisplayActionSelectPage()
         BugTaleCharacters.MPCostVisible = false
         BugTaleCharacters.ActionSelectMPCostAnimation = 15
     end
+
     if currentAction.Description then
         BugTaleCharacters.SkillDescriptionTXT.SetText("[instant]" .. currentAction.Description)
     else
@@ -930,7 +939,7 @@ function BugTaleCharacters.StartActionSelectSequence()
     for i,x in pairs(BugTaleCharacters.ActiveActions) do
         local properties = BugTaleCharacters.ActionProperties[x];
         if properties.BeforeMenu then
-            properties.BeforeMenu();
+            properties.BeforeMenu(BugTaleCharacters.GetCurrentActor(), BugTaleCharacters.CurrentActor, properties);
         end
     end
     
@@ -1321,7 +1330,11 @@ function BugTaleCharacters.DamageRandom(amount, invulTime)
         end
     end
 
-    BugTaleCharacters.DamageActor(availableActors[math.random(1, #availableActors)], amount);
+    local chosenID = availableActors[math.random(1, #availableActors)];
+    local chosenActor = BugTaleCharacters.Actors[chosenID];
+    local def = chosenActor.DEF or 0;
+
+    BugTaleCharacters.DamageActor(chosenID, math.max(1, amount - def));
     Player.Hurt(0, invulTime or 1.7, false, true)
 end
 
@@ -1332,7 +1345,8 @@ function BugTaleCharacters.DamageAll(amount, invulTime)
 
     for i,x in pairs(BugTaleCharacters.Actors) do
         if x.Health > 0 then
-            BugTaleCharacters.DamageActor(i, amount, true)
+            local def = x.DEF or 0;
+            BugTaleCharacters.DamageActor(i, math.max(1, amount - def), true)
         end
     end
     Player.Hurt(0, invulTime or 1.7, false, true)
@@ -1367,7 +1381,11 @@ function BugTaleCharacters.DamageTargeted(amount, invulTime)
         end
     end
 
-    BugTaleCharacters.DamageActor(availableActors[math.random(1, #availableActors)], amount);
+    local chosenID = availableActors[math.random(1, #availableActors)];
+    local chosenActor = BugTaleCharacters.Actors[chosenID];
+    local def = chosenActor.DEF or 0;
+
+    BugTaleCharacters.DamageActor(chosenID, math.max(1, amount - def));
     Player.Hurt(0, invulTime or 1.7, false, true)
 end
 
@@ -1392,7 +1410,7 @@ function BugTaleCharacters.EncounterStarting()
     end
 
     CreateState("SKILLSELECT")
-    UI.namelv.SetText("[instant]" ..BugTaleCharacters.TeamName .." LV " ..BugTaleCharacters.TeamLV)
+    UI.namelv.SetText("[instant]" ..BugTaleCharacters.TeamName:upper() .." LV " ..BugTaleCharacters.TeamLV)
     UI.hplabel.alpha = 0;
     UI.hpbar.SetVisible(false);
     UI.hptext.alpha = 0;
@@ -1412,6 +1430,14 @@ end
 function BugTaleCharacters.ChangeMP(actor, amount)
     actor.Mana = math.max(0, math.min(actor.Mana + amount, actor.MaxMana));
     actor.ManaBar.SetInstant(math.max(0, actor.Mana / actor.MaxMana));
+
+    if(amount > 0) then
+        local ui = actor.UI;
+        local spawnX = ui.absx + math.random(0, ui.width);
+        local spawnY = ui.absy + math.random(0, ui.height);
+
+        BugTaleCharacters.CreateTextVisual(spawnX, spawnY, amount, {0, .5, 1, 1});
+    end
 end
 
 function BugTaleCharacters.SkipToEnemyDialogue()
@@ -1498,7 +1524,7 @@ function BugTaleCharacters.Update()
                         end
                     end
                 end
-                BugTaleCharacters.QueuedAction.OnExecuted()
+                BugTaleCharacters.QueuedAction.OnExecuted(BugTaleCharacters.GetCurrentActor(), BugTaleCharacters.CurrentActor, BugTaleCharacters.TargetSelected)
             end
         elseif Input.Cancel == 2 then
             BugTaleCharacters.TargetSelected = 0;

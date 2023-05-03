@@ -30,10 +30,10 @@ BugTaleLibrary.RegisterActionProperty({
 BugTaleLibrary.RegisterActionProperty({
     Name = "Do Nothing",
     DisplayName = "* Do Nothing",
-    Description = "+2 MP.",
+    Description = "+1 MP.",
     Target = "AUTO",
-    OnExecuted = function()
-        ChangeMP(BugTaleLibrary.CurrentActor, 2)
+    OnExecuted = function(actor)
+        ChangeMP(BugTaleLibrary.CurrentActor, 1)
         State("ENEMYDIALOGUE")
     end
 });
@@ -115,4 +115,4 @@ BugTaleLibrary.RegisterActionProperty({
     end
 });
 
-BugTaleLibrary.SetOtherMenuActions({"Spy", "Do Nothing", "Turn Relay", "Spare"})
+BugTaleLibrary.SetOtherMenuActions({"Do Nothing", "Spare"})
