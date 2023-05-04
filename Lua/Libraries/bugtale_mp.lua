@@ -751,6 +751,8 @@ function BugTaleCharacters.HandleAction(actionID)
                             concatted = concatted .. x .. ", "
                         end
                     end
+
+                    concatted = concatted .. " are unable to act!";
                 end
 
                 BattleDialog({concatted, "[noskip][func:State," .."ACTIONSELECT" .."][next]"})
