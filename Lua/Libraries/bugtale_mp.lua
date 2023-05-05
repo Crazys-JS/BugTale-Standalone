@@ -842,7 +842,6 @@ function BugTaleCharacters.DisplayActionSelectPage()
         if not actionName or not actionData then
             textObj.SetText("[noskip][instant]");
         else
-            local failed = false;
             local totalWidth = 0;
             local extra = "";
 
@@ -863,7 +862,6 @@ function BugTaleCharacters.DisplayActionSelectPage()
                     end
 
                     if not actor then
-                        failed = true
                         error("Tried to find additional actor but couldn't find one.");
                         break
                     end
@@ -1047,17 +1045,23 @@ function BugTaleCharacters.EnteringState(new, old)
             SetAction("FIGHT")
 
             --We should show mercy progress.
-            local LOCALINDEX = 0;
+            local activeEnemies = {};
 
-            for i,x in pairs(enemies) do
+            for _,x in pairs(enemies) do
                 if x.GetVar("isactive") then
-                    LOCALINDEX = LOCALINDEX + 1;
+                    table.insert(activeEnemies, x)
+                end
+            end
+
+            if(#activeEnemies < 3) then
+                for i,x in pairs(activeEnemies) do
                     if x.GetVar("was_spied") and x.GetVar("spare_progress") then
-                        BugTaleCharacters.TargetSelectionMercyBars[LOCALINDEX].SetVisible(true)
-                        BugTaleCharacters.TargetSelectionMercyBars[LOCALINDEX].SetInstant(x.GetVar("spare_progress") / 100);
+                        BugTaleCharacters.TargetSelectionMercyBars[i].SetVisible(true)
+                        BugTaleCharacters.TargetSelectionMercyBars[i].SetInstant(x.GetVar("spare_progress") / 100);
                     end
                 end
             end
+
         end
     elseif new == "ACTMENU" then
         BugTaleCharacters.ActiveActions = BugTaleCharacters.Actors[BugTaleCharacters.CurrentActor].Actions;
